@@ -1,11 +1,11 @@
-const env = require('./env')
+const envcheck = require('./envcheck')
 const tiny = require('tiny-json-http')
 
 // Session
 // - Once validated, August provides JWTs statelessly
 // - To keep this module stateless, we'll fetch the JWT from session with each request
-module.exports = async function AugustAccessTokenRequest(params) {
-  let auth = await env(params)
+module.exports = async function session(params) {
+  let auth = await envcheck(params)
 
   const { apiKey, installID, password, IDType, augustID } = auth
   const url = 'https://api-production.august.com/session'

@@ -7,7 +7,7 @@ const tiny = require('tiny-json-http')
  * - Get details for a single lock
  * - If lock isn't specified, gets details for the first lock returned by the API
  */
-module.exports = async function battery(params = {}) {
+module.exports = async function details(params = {}) {
   let { lockID } = params
 
   let { headers, token } = await session(params)

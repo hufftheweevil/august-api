@@ -1,4 +1,4 @@
-const env = require('./util/env')
+const envcheck = require('./util/envcheck')
 const session = require('./util/session')
 const tiny = require('tiny-json-http')
 
@@ -11,7 +11,7 @@ const tiny = require('tiny-json-http')
 module.exports = async function authorize(params = {}) {
   let { code } = params
 
-  let auth = await env(params)
+  let auth = await envcheck(params)
 
   let { installID, IDType, augustID } = auth
 
