@@ -1,5 +1,5 @@
 const session = require('./util/session')
-const getLocks = require('./_locks')
+const { getLocks } = require('./_locks')
 const tiny = require('tiny-json-http')
 
 /**
