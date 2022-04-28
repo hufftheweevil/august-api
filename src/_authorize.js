@@ -8,7 +8,7 @@ const tiny = require('tiny-json-http')
  * - Each session token must then be validated
  * - Session tokens are keyed by installId
  */
-module.exports = function authorize(params={}, callback) {
+module.exports = function authorize(params = {}, callback) {
   if (!callback && typeof params === 'function') {
     callback = params
     params = {}
@@ -37,46 +37,50 @@ module.exports = function authorize(params={}, callback) {
             // Endpoint used to generate a validation code
             let url = 'https://api-production.august.com/validation/' + IDType
             let data = { value: augustID }
-            tiny.post({
-              url,
-              headers,
-              data
-            }, function _done(err) {
-              if (err) callback(err)
-              else {
-                console.log(`Check ${augustID} for your validation code`)
-                callback()
+            tiny.post(
+              {
+                url,
+                headers,
+                data
+              },
+              function _done(err) {
+                if (err) callback(err)
+                else {
+                  console.log(`Check ${augustID} for your validation code`)
+                  callback()
+                }
               }
-            })
+            )
           }
         })
-      }
-      else {
+      } else {
         // Check that the validation code is, uh, valid
         if (code.toString().length !== 6) {
           callback(Error('Validation code is invalid, should be six digits'))
-        }
-        else {
+        } else {
           // Validatate the session
           session(params, function _validateCode(err, result) {
             if (err) callback(err)
             else {
-              let  { headers } = result
+              let { headers } = result
               // Endpoint used to validate the token with the code
               let url = 'https://api-production.august.com/validate/' + IDType
               let data = { code }
               data[IDType] = augustID
-              tiny.post({
-                url,
-                headers,
-                data
-              }, function _done(err) {
-                if (err) callback(err)
-                else {
-                  console.log('Session validated!')
-                  callback(null, installID)
+              tiny.post(
+                {
+                  url,
+                  headers,
+                  data
+                },
+                function _done(err) {
+                  if (err) callback(err)
+                  else {
+                    console.log('Session validated!')
+                    callback(null, installID)
+                  }
                 }
-              })
+              )
             }
           })
         }

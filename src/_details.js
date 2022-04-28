@@ -7,7 +7,7 @@ const tiny = require('tiny-json-http')
  * - Get details for a single lock
  * - If lock isn't specified, gets details for the first lock returned by the API
  */
-module.exports = function battery(params={}, callback) {
+module.exports = function battery(params = {}, callback) {
   if (!callback && typeof params === 'function') {
     callback = params
     params = {}
@@ -24,34 +24,34 @@ module.exports = function battery(params={}, callback) {
   }
 
   if (lockID) {
-    session(params,
-    function _status(err, result) {
+    session(params, function _status(err, result) {
       if (err) callback(err)
       else {
         let { headers, token } = result
         let url = 'https://api-production.august.com/locks/' + lockID
         headers['Content-Length'] = 0 // endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
-        tiny.get({
-          url,
-          headers
-        }, function done(err, response) {
-          if (err) callback(err)
-          else {
-            let result = {
-              ...response.body,
-              token
+        tiny.get(
+          {
+            url,
+            headers
+          },
+          function done(err, response) {
+            if (err) callback(err)
+            else {
+              let result = {
+                ...response.body,
+                token
+              }
+              callback(null, result)
             }
-            callback(null, result)
           }
-        })
+        )
       }
     })
-  }
-  else {
+  } else {
     // Just pick the first lock
-    getLocks(params,
-    function pickTheLock(err, result) {
-      if (err) callback (err)
+    getLocks(params, function pickTheLock(err, result) {
+      if (err) callback(err)
       else {
         let { body, headers, token } = result
         // TODO maybe enable this method to return status of all locks?
@@ -59,19 +59,22 @@ module.exports = function battery(params={}, callback) {
         lockID = locks[0]
         let url = 'https://api-production.august.com/locks/' + lockID
         headers['Content-Length'] = 0 // endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
-        tiny.get({
-          url,
-          headers
-        }, function done(err, response) {
-          if (err) callback(err)
-          else {
-            let result = {
-              ...response.body,
-              token
+        tiny.get(
+          {
+            url,
+            headers
+          },
+          function done(err, response) {
+            if (err) callback(err)
+            else {
+              let result = {
+                ...response.body,
+                token
+              }
+              callback(null, result)
             }
-            callback(null, result)
           }
-        })
+        )
       }
     })
   }

@@ -5,8 +5,7 @@ const tiny = require('tiny-json-http')
 // - Once validated, August provides JWTs statelessly
 // - To keep this module stateless, we'll fetch the JWT from session with each request
 module.exports = function AugustAccessTokenRequest(params, callback) {
-  env(params,
-  function go(err, auth) {
+  env(params, function go(err, auth) {
     if (err) callback(err)
     else {
       const { apiKey, installID, password, IDType, augustID } = auth
@@ -20,31 +19,33 @@ module.exports = function AugustAccessTokenRequest(params, callback) {
         'x-kease-api-key': AugustAPIKey,
         'Content-Type': 'application/json',
         'Accept-Version': '0.0.1',
-        'User-Agent': 'August/Luna-3.2.2',
+        'User-Agent': 'August/Luna-3.2.2'
       }
 
       if (params.token) {
         let { token } = params
         headers['x-august-access-token'] = token
         callback(null, { headers, token })
-      }
-      else {
+      } else {
         // August access token request body
         let data = { installId: installID, password, identifier }
-        tiny.post({
-          url,
-          headers,
-          data,
-        }, function _done(err, response) {
-          if (err) callback(err)
-          else {
-            headers['x-august-access-token'] = response.headers['x-august-access-token']
-            callback(null, {
-              headers,
-              token: response.headers['x-august-access-token']
-            })
+        tiny.post(
+          {
+            url,
+            headers,
+            data
+          },
+          function _done(err, response) {
+            if (err) callback(err)
+            else {
+              headers['x-august-access-token'] = response.headers['x-august-access-token']
+              callback(null, {
+                headers,
+                token: response.headers['x-august-access-token']
+              })
+            }
           }
-        })
+        )
       }
     }
   })
