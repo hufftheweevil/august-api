@@ -1,4 +1,4 @@
-module.exports = function envcheck(params = {}, callback) {
+module.exports = async function envcheck(params = {}, callback) {
   let { config = {} } = params
 
   let { AUGUST_API_KEY, AUGUST_INSTALLID, AUGUST_PASSWORD, AUGUST_ID_TYPE, AUGUST_ID } = process.env
@@ -17,9 +17,6 @@ module.exports = function envcheck(params = {}, callback) {
     errors.push(`Missing config.IDType or AUGUST_ID_TYPE env var: must be 'phone' or 'email'`)
   if (!augustID) errors.push(`Missing config.augustID or AUGUST_ID env var`)
 
-  if (errors.length) callback(ReferenceError(`Config errors found:\n${errors.join('\n')}`))
-  else {
-    let auth = { apiKey, installID, password, IDType, augustID }
-    callback(null, auth)
-  }
+  if (errors.length) throw ReferenceError(`Config errors found:\n${errors.join('\n')}`)
+  else return { apiKey, installID, password, IDType, augustID }
 }

@@ -5,53 +5,22 @@ const tiny = require('tiny-json-http')
  * Get locks
  * - Returns an object containing account's locks
  */
-function locks(params = {}, callback) {
-  if (!callback && typeof params === 'function') {
-    callback = params
-    params = {}
-  }
-  params = params || {}
-
+async function locks(params = {}) {
   let { internal = true } = params
-  let promise
-  if (!callback) {
-    promise = new Promise((res, rej) => {
-      callback = (err, result) => {
-        err ? rej(err) : res(result)
-      }
-    })
-  }
 
-  session(params, function _locks(err, result) {
-    if (err) callback(err)
-    else {
-      let { headers, token } = result
-      let url = 'https://api-production.august.com/users/locks/mine'
-      headers['Content-Length'] = 0 // endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
-      tiny.get(
-        {
-          url,
-          headers
-        },
-        function done(err, response) {
-          if (err) callback(err)
-          else {
-            let result = internal
-              ? { body: response.body, headers, token }
-              : { ...response.body, token }
-            callback(null, result)
-          }
-        }
-      )
-    }
-  })
+  let { headers, token } = await session(params)
 
-  return promise
+  let url = 'https://api-production.august.com/users/locks/mine'
+  headers['Content-Length'] = 0 // endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
+  let { body } = await tiny.get({ url, headers })
+
+  let res = internal ? { body, headers, token } : { ...body, token }
+  return res
 }
 
-locks.external = function (params = {}, callback) {
+locks.external = async function (params = {}) {
   params.internal = false
-  return locks(params, callback)
+  return await locks(params)
 }
 
 module.exports = locks
