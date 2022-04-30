@@ -4,6 +4,7 @@ let lockUnlock = require('./_lock-unlock')
 let locks = require('./_locks')
 let status = require('./_status')
 let details = require('./_details')
+let subscribe = require('./_subscribe')
 
 let methods = {
   authorize,
@@ -12,7 +13,8 @@ let methods = {
   lock: lockUnlock.bind({}, 'lock'),
   locks,
   status,
-  unlock: lockUnlock.bind({}, 'unlock')
+  unlock: lockUnlock.bind({}, 'unlock'),
+  subscribe
 }
 
 methods.setup = async function (params = {}) {
@@ -20,7 +22,8 @@ methods.setup = async function (params = {}) {
 
   Object.keys(methods).map(name => {
     if (name === 'setup') return
-    hydratedMethods[name] = (moreParams = {}) => methods[name]({ ...params, ...moreParams })
+    hydratedMethods[name] = async (moreParams = {}, ...moreArgs) =>
+      methods[name]({ ...params, ...moreParams }, ...moreArgs)
   })
 
   return hydratedMethods

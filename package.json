@@ -22,6 +22,7 @@
     "url": "https://github.com/ryanblock/august-connect.git"
   },
   "dependencies": {
+    "pubnub": "^5.0.1",
     "tiny-json-http": "^7.4.2"
   },
   "devDependencies": {
