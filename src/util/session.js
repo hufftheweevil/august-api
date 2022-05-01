@@ -1,40 +1,34 @@
-const envcheck = require('./envcheck')
 const tiny = require('tiny-json-http')
 
-// Session
-// - Once validated, August provides JWTs statelessly
-// - To keep this module stateless, we'll fetch the JWT from session with each request
-module.exports = async function session(params) {
-  let auth = await envcheck(params.config)
-
-  const { apiKey, installID, password, IDType, augustID } = auth
+/**
+ * * Start or continue a session
+ * If token not saved, fetch a new token
+ * ! Tokens should only be saved when making consecutive requests (i.e. internally)
+ *
+ * @returns {object} headers
+ */
+module.exports = async function session() {
+  const { apiKey, installId, password, idType, augustId } = this.config
   const url = 'https://api-production.august.com/session'
-  const identifier = `${IDType}:${augustID}`
-  const AugustAPIKey = apiKey // Same as 'kease' API key ¯\_(ツ)_/¯
+  const identifier = `${idType}:${augustId}`
 
-  // Set up standard headers
   let headers = {
-    'x-august-api-key': AugustAPIKey,
-    'x-kease-api-key': AugustAPIKey,
+    'x-august-api-key': apiKey,
+    'x-kease-api-key': apiKey,
     'Content-Type': 'application/json',
     'Accept-Version': '0.0.1',
     'User-Agent': 'August/Luna-3.2.2'
   }
 
-  if (params.token) {
-    let { token } = params
-    headers['x-august-access-token'] = token
-    return { headers, token }
-  } else {
-    // August access token request body
-    let data = { installId: installID, password, identifier }
+  if (!this.token) {
+    let data = { installId, identifier, password }
 
     let response = await tiny.post({ url, headers, data })
 
-    headers['x-august-access-token'] = response.headers['x-august-access-token']
-    return {
-      headers,
-      token: response.headers['x-august-access-token']
-    }
+    this.token = response.headers['x-august-access-token']
   }
+
+  headers['x-august-access-token'] = this.token
+
+  return headers
 }
