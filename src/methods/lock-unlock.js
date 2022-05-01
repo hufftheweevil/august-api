@@ -10,9 +10,8 @@ module.exports = async function lockUnlock(action, lockId) {
     throw ReferenceError(`Action must either be 'lock' or 'unlock'`)
 
   if (!lockId) {
-    let body = await this._locks()
+    let locks = Object.keys(await this._locks())
 
-    let locks = Object.keys(body)
     // Make sure we never, ever lock or unlock the wrong lock
     if (locks.length > 1)
       throw Error(`If you own multiple locks, you must specify which lock to ${action}.`)
@@ -20,9 +19,7 @@ module.exports = async function lockUnlock(action, lockId) {
     lockId = locks[0]
   }
 
-  let { body } = await this.put({
-    url: `https://api-production.august.com/remoteoperate/${lockId}/${action}`
-  })
+  let { body } = await this.put(`/remoteoperate/${lockId}/${action}`)
 
   this.end()
 

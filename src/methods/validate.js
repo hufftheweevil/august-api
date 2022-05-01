@@ -7,12 +7,13 @@
 module.exports = async function authorize(code) {
   let { idType, augustId } = this.config
 
-  if (code?.toString().length !== 6) throw Error('Validation code is invalid, should be six digits')
+  code = code?.toString()
 
-  await this.post({
-    url: `https://api-production.august.com/validate/${idType}`,
-    data: { code, [idType]: augustId }
-  })
+  if (code.length !== 6) throw Error('Validation code is invalid, should be six digits')
+
+  let res = await this.post(`/validate/${idType}`, { code, [idType]: augustId })
+
+  if (!res) return false
 
   console.log('Session validated!')
   return true

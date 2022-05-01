@@ -4,13 +4,12 @@
  * @returns {boolean} true if code was sent
  */
 module.exports = async function authorize() {
-  let { IDType, augustID } = this.config
+  let { idType, augustId } = this.config
 
-  await this.post({
-    url: `https://api-production.august.com/validation/${IDType}`,
-    data: { value: augustID }
-  })
+  let res = await this.post(`/validation/${idType}`, { value: augustId })
 
-  console.log(`Check ${augustID} for your validation code`)
+  if (!res) return false
+
+  console.log(`Check ${augustId} for your validation code`)
   return true
 }

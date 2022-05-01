@@ -6,20 +6,16 @@
  */
 module.exports = async function details(lockId, internal) {
   if (!lockId) {
-    // Just pick the first lock
-    let body = await this._locks()
+    let locks = Object.keys(await this._locks())
 
-    // TODO maybe enable this method to return status of all locks?
-    let locks = Object.keys(body)
+    if (locks.length > 1) return Promise.all(locks.map(this._details.bind(this)))
+
     lockId = locks[0]
   }
 
-  let { body } = await this.get({
-    url: `https://api-production.august.com/locks/${lockId}`
-  })
+  let { body } = await this.get(`/locks/${lockId}`)
 
   if (!internal) this.end()
-  console.log(body)
 
   return body
 }

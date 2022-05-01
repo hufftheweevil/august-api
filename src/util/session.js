@@ -23,7 +23,8 @@ module.exports = async function session() {
   if (!this.token) {
     let data = { installId, identifier, password }
 
-    let response = await tiny.post({ url, headers, data })
+    let response = await this.fetch({ method: 'post', url, headers, data })
+    //await tiny.post({ url, headers, data })
 
     this.token = response.headers['x-august-access-token']
   }

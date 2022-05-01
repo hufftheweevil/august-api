@@ -16,29 +16,45 @@ class August {
     this.config = setup(config)
   }
 
+  async fetch({ method, ...params }) {
+    try {
+      // Keep this `await` - it allows us to catch errors from tiny
+      return await tiny[method](params)
+    } catch (err) {
+      // Convert giagantic error to a more manageable one
+      if (err.statusCode)
+        err = `FetchError: Status ${err.statusCode} (${err.body.code}): ${err.body.message}`
+
+      console.error(err)
+      return {}
+    }
+  }
+
   /* --------------------------------- Session -------------------------------- */
-  async #fetch(method, params = {}) {
+  async #start(method, endpoint, data) {
     // Start or continue a session
-    let headers = await session.call(this, params)
+    let headers = await session.call(this)
 
-    if (!params.data) headers['Content-Length'] = 0 // If no data, endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
+    if (!this.token) throw Error('Session not started')
 
-    return tiny[method]({ headers, ...params })
+    if (!data) headers['Content-Length'] = 0 // If no data, endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
+
+    if (endpoint[0] !== '/') endpoint = `/${endpoint}` // Ensure endpoint starts with a '/'
+    let url = `https://api-production.august.com${endpoint}`
+
+    return this.fetch({ method, url, headers, data })
   }
-  async get(params) {
-    return this.#fetch('get', params)
+  async get(endpoint) {
+    return this.#start('get', endpoint)
   }
-  async post(params) {
-    return this.#fetch('post', params)
+  async post(endpoint, data) {
+    return this.#start('post', endpoint, data)
   }
-  async put(params) {
-    return this.#fetch('put', params)
-  }
-  async delete(params) {
-    return this.#fetch('delete', params)
+  async put(endpoint, data) {
+    return this.#start('put', endpoint, data)
   }
   end() {
-    // End the session (called automatically in very method below except where noted)
+    // End the session (called automatically in every method below except where noted)
     this.token = null
   }
 
@@ -67,6 +83,10 @@ class August {
   }
   async status(lockId) {
     return status.call(this, lockId)
+  }
+  async _status(lockId) {
+    // Interal use only
+    return status.call(this, lockId, true) // true keeps the session alive
   }
 
   /* --------------------------------- Action --------------------------------- */
