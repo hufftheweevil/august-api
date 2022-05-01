@@ -9,8 +9,6 @@ const tiny = require('tiny-json-http')
  */
 module.exports = async function session() {
   const { apiKey, installId, password, idType, augustId } = this.config
-  const url = 'https://api-production.august.com/session'
-  const identifier = `${idType}:${augustId}`
 
   let headers = {
     'x-august-api-key': apiKey,
@@ -21,10 +19,11 @@ module.exports = async function session() {
   }
 
   if (!this.token) {
+    const identifier = `${idType}:${augustId}`
+
     let data = { installId, identifier, password }
 
-    let response = await this.fetch({ method: 'post', url, headers, data })
-    //await tiny.post({ url, headers, data })
+    let response = await this.fetch({ method: 'post', url: 'session', headers, data })
 
     this.token = response.headers['x-august-access-token']
   }

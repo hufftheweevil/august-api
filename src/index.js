@@ -11,12 +11,19 @@ const status = require('./methods/status')
 const details = require('./methods/details')
 const subscribe = require('./methods/subscribe')
 
+const API_URL = 'https://api-production.august.com'
+
 class August {
   constructor(config) {
     this.config = setup(config)
   }
 
   async fetch({ method, ...params }) {
+    // Ensure proper url
+    if (!params.url.startsWith(API_URL)) {
+      if (!params.url.startsWith('/')) params.url = '/' + params.url
+      params.url = API_URL + params.url
+    }
     try {
       // Keep this `await` - it allows us to catch errors from tiny
       return await tiny[method](params)
@@ -31,16 +38,13 @@ class August {
   }
 
   /* --------------------------------- Session -------------------------------- */
-  async #start(method, endpoint, data) {
+  async #start(method, url, data) {
     // Start or continue a session
     let headers = await session.call(this)
 
     if (!this.token) throw Error('Session not started')
 
     if (!data) headers['Content-Length'] = 0 // If no data, endpoint requires `Content-length: 0` or it won't hang up ¯\_(ツ)_/¯
-
-    if (endpoint[0] !== '/') endpoint = `/${endpoint}` // Ensure endpoint starts with a '/'
-    let url = `https://api-production.august.com${endpoint}`
 
     return this.fetch({ method, url, headers, data })
   }
