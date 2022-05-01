@@ -9,7 +9,7 @@ const tiny = require('tiny-json-http')
 module.exports = async function authorize(params = {}) {
   let { code } = params
 
-  let auth = await envcheck(params)
+  let auth = await envcheck(params.config)
 
   let { IDType, augustID } = auth
 

@@ -7,7 +7,7 @@ const tiny = require('tiny-json-http')
  * - Request a code be sent to phone or email
  */
 module.exports = async function authorize(params = {}) {
-  let auth = await envcheck(params)
+  let auth = await envcheck(params.config)
 
   let { IDType, augustID } = auth
 

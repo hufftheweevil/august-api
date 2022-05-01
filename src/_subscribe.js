@@ -11,7 +11,7 @@ const AUGUST_SUB_KEY = 'sub-c-1030e062-0ebe-11e5-a5c2-0619f8945a4f'
  * - Returns an unsubscribe function
  */
 module.exports = async function subscribe(params = {}, callback) {
-  let auth = await envcheck(params)
+  let auth = await envcheck(params.config)
 
   // TODO Use _details to auto determine channel
   let channel = params.channel

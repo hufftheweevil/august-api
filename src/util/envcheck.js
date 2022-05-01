@@ -1,5 +1,5 @@
-module.exports = async function envcheck(params = {}, callback) {
-  let { config = {} } = params
+module.exports = async function envcheck(config = {}) {
+  // let { config = {} } = params
 
   let { AUGUST_API_KEY, AUGUST_INSTALLID, AUGUST_PASSWORD, AUGUST_ID } = process.env
 
