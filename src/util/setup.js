@@ -15,12 +15,12 @@ module.exports = function setup(config = {}) {
 
   let errors = []
 
-  let apiKey = AUGUST_API_KEY ?? config.apiKey ?? DEFAULT_API_KEY
-  let pnSubKey = AUGUST_PN_SUB_KEY ?? config.pnSubKey ?? DEFAULT_PN_SUB_KEY
-  let installId = AUGUST_INSTALL_ID ?? config.installId
+  let apiKey = config.apiKey ?? AUGUST_API_KEY ?? DEFAULT_API_KEY
+  let pnSubKey = config.pnSubKey ?? AUGUST_PN_SUB_KEY ?? DEFAULT_PN_SUB_KEY
+  let installId = config.installId ?? AUGUST_INSTALL_ID
   let idType // Auto-detected
-  let augustId = AUGUST_ID ?? config.augustId
-  let password = AUGUST_PASSWORD ?? config.password
+  let augustId = config.augustId ?? AUGUST_ID
+  let password = config.password ?? AUGUST_PASSWORD
 
   if (!apiKey) errors.push(`Missing config.apiKey or AUGUST_API_KEY env var`)
   if (!installId) errors.push(`Missing config.installId or AUGUST_INSTALL_ID env var`)
