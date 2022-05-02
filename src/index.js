@@ -106,7 +106,7 @@ class August {
     return subscribe.call(this, lockId, callback)
   }
 
-  addState(obj) {
+  addSimpleProps(obj) {
     // Adds .state and .lockID to obj
     let { status, doorState, info } = obj
     obj.state = {}

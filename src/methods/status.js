@@ -19,7 +19,7 @@ module.exports = async function status(lockId, internal) {
 
   if (!body) return
 
-  this.addState(body)
+  this.addSimpleProps(body)
 
   return body
 }
