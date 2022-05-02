@@ -31,7 +31,7 @@ let august = new August({
 })
 ```
 
-> Note: Alternatively, you can set environment variables (see [configuration](#config) below)
+> Note: Alternatively, you can set environment variables (see [configuration](#configuration) below)
 
 If this is the first time you're using this `installId`, you need to `authorize` and `validate`:
 
@@ -58,7 +58,7 @@ See [API](#api) below for more methods.
 
 ---
 
-## Configuration {#config}
+## Configuration
 
 When creating a new `August` object, the configuration can be passed in as an object, or stored in environment variables.
 
@@ -80,7 +80,7 @@ August's API uses short-lived tokens (JWTs). This module attempts to relieve the
 
 ---
 
-## API {#api}
+## API
 
 These methods are available on each object created from `August`. **All methods are asyncronous and should be properly awaited.** Unless otherwise specified, `undefined` will be returned if an error occurs. Check your error log for error message.
 
@@ -276,7 +276,7 @@ console.log(lockStatus)
 
 #### `subscribe(lockId, callback)` → `function`
 
-Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md) for more info.
+Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md#AugustLockStatus) for more info.
 
 Returns an unsubscribe function.
 

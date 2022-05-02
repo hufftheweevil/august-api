@@ -1,4 +1,4 @@
-### AugustLockBasic {#AugustLockBasic}
+### AugustLockBasic
 
 ```js
 {
@@ -10,7 +10,7 @@
 }
 ```
 
-### AugustLockDetailed {#AugustLockDetailed}
+### AugustLockDetailed
 
 ```js
 {
