@@ -1,6 +1,6 @@
 # August Endpoints
 
-This is an updated version of [Nolan Brown's list](https://nolanbrown.medium.com/august-lock-rest-apis-the-basics-7ec7f31e7874). Endpoints without a status indicate I am unable to test at this time. Known keys are listed for POST and PUT endpoints that require data. If you have any information to add to this list, please post a GitHub issue, or email me directly at jhalbsgut@gmail.com
+This is an updated version of [Nolan Brown's list](https://nolanbrown.medium.com/august-lock-rest-apis-the-basics-7ec7f31e7874). Endpoints without a status indicate I am unable to test at this time. Known keys are listed for POST and PUT endpoints that require data. If you have any information to add to this list, please post a GitHub issue or PR.
 
 **Note:** Not all endpoints are implemented in this package. Some may be added in the future. This list is for information and research.
 

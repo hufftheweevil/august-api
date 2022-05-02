@@ -1,306 +1,310 @@
-# [august-connect](https://www.npmjs.com/package/august-connect)
+# August API
 
-[![GitHub CI status](https://github.com/ryanblock/august-connect/workflows/Node%20CI/badge.svg)](https://github.com/ryanblock/august-connect/actions?query=workflow%3A%22Node+CI%22)
+A simple module for locking, unlocking, and getting the status of August smart locks connected via WiFi. You can also subscribe to lock events.
 
-A simple module for locking, unlocking, and getting the status of August smart locks via the [August Connect WiFi bridge](https://august.com/products/august-connect-wifi-bridge/).
+> **⚠️ Disclaimer: I am in no way responsible for any safety issues that arise from the use of this module!**
 
----
+## Support
+
+The module has been tested with:
+
+- [August Wi-Fi Smart Lock (4th gen)](https://august.com/products/august-wifi-smart-lock)
+- [August Connect WiFi bridge](https://august.com/products/august-connect-wifi-bridge/)
 
 ## Setup
 
-You'll need:
-
-- A set up & configured August Smart Lock + August Connect WiFi bridge
-- The password to the August account you'll be using with this client
-- A valid August API key¹
-
 ```sh
-npm i august-connect
+npm i august-api
 ```
 
-Require `august-connect` in your project:
-```javascript
-let august = require('august-connect')
+## Usage
+
+Create a new `August` object that will save your configuration while you use it:
+
+```js
+let August = require('august-api')
+
+let august = new August({
+  installId: 'uniqueId', // Can be anything, but save it for future use on this account
+  augustId: 'yourEmailOrPhone', // Phone must be formatted +[countrycode][number]
+  password: 'yourPassword'
+})
 ```
+
+> Note: Alternatively, you can set environment variables (see [configuration](#config) below)
+
+If this is the first time you're using this `installId`, you need to `authorize` and `validate`:
+
+```js
+august.authorize()
+```
+
+A 6-digit code will be sent to your email or phone (depending on what you used for your `augustId`). Send the code back:
+
+```js
+august.validate('123456') // Example code
+```
+
+And you're all set!
+
+```js
+// Example
+let myLocks = await august.locks()
+let lockId = Object.keys(myLocks)[0]
+august.lock(lockId)
+```
+
+See [API](#api) below for more methods.
 
 ---
 
-## Configuration
+## Configuration {#config}
 
-Calls must be made with a configuration set either as environment variables, or passed in the parameters of the method in question.
+When creating a new `August` object, the configuration can be passed in as an object, or stored in environment variables.
 
+| Config object | Env Variable       |
+| ------------- | ------------------ |
+| installId     | AUGUST_INSTALL_ID  |
+| augustId      | AUGUST_ID          |
+| password      | AUGUST_PASSWORD    |
+| apiKey¹       | AUGUST_API_KEY¹    |
+| pnSubKey¹     | AUGUST_PN_SUB_KEY¹ |
 
-### Environment variables
+> ¹ `apiKey` and `pnSubKey` are optional. This module uses August's unpublished API, and August has been known to occasionally recycle their client API keys. **Keys have been hard-coded into this module, but they may break at any time.** If you find a different key to use, pass it in here.
 
-The following configuration environment variables are **required** if not passing a `config` **object**:
-
-- `AUGUST_API_KEY` - **string** - a valid August API key¹ (please refer notes at the bottom of this readme for more)
-- `AUGUST_INSTALLID` - **string** - referred to as the "installation" below, this string represents your authorized session; changing it will break things and require re-authorization; suggest using something reasonably long, random, and unique
-- `AUGUST_PASSWORD` - **string** - your August password
-- `AUGUST_ID_TYPE` - **string** - one of `email` or `phone`
-- `AUGUST_ID` - **string** - the corresponding account email or a phone number (phone format is `+[countrycode][number]` with no other symbols, i.e. `+12345678901`)
-
-To work with `august-connect` locally, I suggest setting up your variables with [dotenv](https://www.npmjs.com/package/dotenv).
-
-
-### Config object
-
-The following configuration keys are **required** if not using the environment variables noted above:
-
-- `apiKey` - - **string** - a valid August API key¹ (please refer notes at the bottom of this readme for more)
-- `installID` - - **string** - referred to as the "installation" below, this string represents your authorized session; changing it will break things and require re-authorization; suggest using something reasonably long, random, and unique
-- `password` - - **string** - your August password
-- `IDType` - - **string** - one of `email` or `phone`
-- `augustID` - - **string** - the corresponding account email or a phone number (phone format is `+[countrycode][number]` with no other symbols, i.e. `+12345678901`)
-
+When using environment variables, you can simply call `new August()`. You can also choose to have some environment variables and some in the config object. Any property sent via the config object will override the respective environment variable.
 
 ### Tokens
 
-August's API uses short-lived tokens (JWTs); as of version 3.0 `august-connect` returns a `token` **string** from its first session initiation; subsequent requests may reuse the same token.
-
-> ⚠️ **Warning:** Depending on how your processes run, network conditions, API latency, etc., these tokens may expire mid-use. **If you aren't totally sure, don't reuse your token between transactions.**
+August's API uses short-lived tokens (JWTs). This module attempts to relieve the user from worrying about the tokens. Therefore, they are not returned in any method. See [ryanblock's august-connect](https://github.com/ryanblock/august-connect#tokens) for more info.
 
 ---
 
-## API
+## API {#api}
+
+These methods are available on each object created from `August`. **All methods are asyncronous and should be properly awaited.** Unless otherwise specified, `undefined` will be returned if an error occurs. Check your error log for error message.
 
 ### Authorization
-#### `august.authorize([params][, callback])` → `[Promise]`
-#### ⚠️ Required step!
 
-> Also aliased to `august.validate()`
+#### `authorize()` → `boolean`
 
-Before you can use `august-connect`, you'll have to authorize an installation (i.e. your `AUGUST_INSTALLID`, which is just a unique identifier of your choosing that you'll continue reusing). **You only need to authorize an installation one time** – you should not attempt continued / ongoing reauthorization attempts.
+Initiate the authorization process by causing August to send a 6-digit code to your phone or email. Returns `true` on successfully sending code, otherwise returns `false`.
 
-If passed, params must be an **object**; this object may contain a `code` **string**, and `config` **object**, and it returns the **string** of the authorized installation ID.
+#### `validate(code)` → `boolean`
 
-To authorize an installation, you must input a six digit code that August will send to your `email` or `phone` ID. Here's how:
+Validate 6-digit `code` (**string** or **number**) sent to phone or email. Returns `true` on successfully validating a code, otherwise returns `false`.
 
-- First, assuming your configuration env vars are set, initiate the request for an auth code by calling: `august.authorize()`
-- Alternately, if passing a config object, initiate the request for an auth code by calling: `august.authorize({config: {...})`
-- Then, complete your auth request by adding the six digit code (as a string) as the first param: `august.authorize({code: '123456'})`
+> ⚠️ **Warning:** **You only need to authorize an installation one time** – you should not attempt continued / ongoing reauthorization attempts for the same `installId`. However, if you change your `installId`, or don't make use of that installation's session for 120 days, you'll have to repeat the authorization process again.
 
-You should now have an authorized installation!
+### Info
 
-> ⚠️ **Warning:** if you change your `AUGUST_INSTALLID`, or don't make use of that installation's session for 120 days, you'll have to repeat the authorization process again.
+#### `locks()` → `object`
 
-##### Example
-```javascript
-// Get a second-factor code
-august.authorize({
-  config: {
-    apiKey,
-    installID,
-    password,
-    IDType,
-    augustID
-  }
-}, console.log)
+Retrieve a list of all locks on account.
 
-// Authorize
-august.authorize({
-  code,
-  ...config
-}, console.log)
-```
-
-
-### Status / info
-
-#### `august.status([params][, callback])` → `[Promise]`
-
-If passed, params must be an **object**; this object may contain a `lockID` **string**, `config` **object**, and `token` **string**.
-
-Returns **error**, or **object** containing status and diagnostic info of a single lock, and a reusable [`token`](#tokens):
-- If your account only has access to a single lock, you can opt not to specify a `lockID`
-- For reference, lock states:
-  - `status.kAugLockState_Locked`: lock is **locked**
-  - `status.kAugLockState_Unlocked`: lock is **unlocked**
+Returns map **object** of lock IDs to **AugustLockBasic** objects.
 
 ##### Example
-```javascript
-// Check your lock's status
-const August = require('august-connect')
 
-August.status({ lockID: '7EDFA965E0AE0CE19772AFA435364295' }, console.log)
-// {
-//   status: 'kAugLockState_Locked',
-//   info: { ... }
-//   retryCount: 1,
-//   totalTime: 1786,
-//   resultsFromOperationCache: false,
-//   token: 'foobar'
-// }
-```
-
-
-#### `august.locks([params][, callback])` → `[Promise]`
-
-If passed, params must be an **object**, and may contain a `config` **object**, and `token` **string**.
-
-Returns **error**, or **object** containing locks that your valid installation has access to, and a reusable [`token`](#tokens)
-
-##### Example
-```javascript
-// Check to see if your lock is locked
-const August = require('august-connect')
-
-August.locks(console.log)
+```js
+let myLocks = await august.locks()
+console.log(myLocks)
 // {
 //  '7EDFA965E0AE0CE19772AFA435364295': {
 //    LockName: 'Front door',
 //    UserType: 'superuser',
 //    macAddress: '1A:2B:3C:4D:5E:6F',
 //    HouseID: '097dcab3-a29a-491a-8468-bab41b6b7040',
-//    HouseName: 'Home',
-//    token: 'foobar'
+//    HouseName: 'Home'
 //   }
 // }
 ```
 
-#### `august.details([params][, callback])` → `[Promise]`
+#### `details([lockId])` → `object` | `array[objects]`
 
-If passed, params must be an **object**, and may contain a `lockID` **string**, `config` **object**, and `token` **string**.
+Retrieve details about a lock or locks.
 
-Returns **error**, or **object** containing lock details on a single lock, and a reusable [`token`](#tokens)
-- If your account only has access to a single lock, you can opt not to specify a `lockID`
+If `lockId` is specified, or if only one lock is on account, returns **AugustLockDetailed** object. If no `lockId` specified and multiple locks on account, returns array of **AugustLockDetailed**.
 
 ##### Examples
-```javascript
-// Obtains details on a specific lock
-const August = require('august-connect')
 
-August.details({ lockID: '7EDFA965E0AE0CE19772AFA435364295' }, console.log)
+```js
+let lockDetails = await august.details('7EDFA965E0AE0CE19772AFA435364295')
+console.log(lockDetails)
 // {
-//   battery: { ... },
-//  ...
+//   LockName: 'Front door',
+//   battery: 0.8512345,
+//   LockStatus: {...}
+//   ...
 // }
 ```
 
-```javascript
-// Assuming your have only one August lock on your account
-const August = require('august-connect')
-
-;(async () => {
-  await August.details()
-})
+```js
+// Assuming you have multiple locks
+let lockDetails = await august.details()
+console.log(lockDetails)
+// [
+//   {
+//     LockName: 'Front door',
+//     battery: 0.8512345,
+//     LockStatus: {...}
+//     ...
+//   }
+//   {
+//     LockName: 'Back door',
+//     battery: 0.6512345,
+//     LockStatus: {...}
+//     ...
+//   }
+// ]
 ```
 
-### Lock / unlock
+#### `status([lockId])` → `object` | `array[objects]`
 
-#### `august.lock([params][, callback])` → `[Promise]`
+Retrieve status of lock or locks.
 
-If passed, params must be an **object**, and may contain a `lockID` **string**, `config` **object**, and `token` **string**.
-
-Returns **error**, or **object** containing status and diagnostic info after locking a single lock, and a reusable [`token`](#tokens)
-- If your account only has access to a single lock, you can opt not to specify a `lockID`
-- If your account has access multiple locks, **you must specify a lockID**
-  - This is to prevent locking the wrong lock, which would be *pretty not good*
+If `lockId` is specified, or if only one lock is on account, returns **AugustLockStatus** object. If no `lockId` specified and multiple locks on account, returns array of **AugustLockStatus**.
 
 ##### Examples
-```javascript
-// Lock a specific lock
-const August = require('august-connect')
 
-August.lock({ lockID: '7EDFA965E0AE0CE19772AFA435364295' }, console.log)
+```js
+let lockStatus = await august.status('7EDFA965E0AE0CE19772AFA435364295')
+console.log(lockStatus)
 // {
+//   lockID: '7EDFA965E0AE0CE19772AFA435364295'
 //   status: 'kAugLockState_Locked',
-//   info: { ... }
-//   retryCount: 1,
-//   totalTime: 1786,
-//   resultsFromOperationCache: false,
-//   token: 'foobar'
+//   doorState: 'kAugDoorState_Closed',
+//   state: {
+//     locked: true,
+//     unlocked: false,
+//     closed: true,
+//     open: false,
+//   }
+//   ...
 // }
 ```
 
-```javascript
-// Assuming your have only one August lock on your account
-const August = require('august-connect')
-
-;(async () => {
-  await August.lock()
-})
+```js
+// Assuming you have multiple locks
+let lockStatuses = await august.status()
+console.log(lockStatuses)
+// [
+//   {
+//     lockID: '7EDFA965E0AE0CE19772AFA435364295'
+//     status: 'kAugLockState_Locked',
+//     doorState: 'kAugDoorState_Closed',
+//     state: {
+//       locked: true,
+//       unlocked: false,
+//       closed: true,
+//       open: false,
+//     }
+//     ...
+//   }
+//   {
+//     lockID: 'CB9A7186FAF76B016B34165164912345'
+//     status: 'kAugLockState_Unlocked',
+//     doorState: 'kAugDoorState_Open',
+//     state: {
+//       locked: false,
+//       unlocked: true,
+//       closed: false,
+//       open: true,
+//     }
+//     ...
+//   }
+// ]
 ```
 
+### Actions
 
-#### `august.unlock([params][, callback])` → `[Promise]`
+#### `lock([lockId])` → `object`
 
-If passed, params must be an **object**, and may contain a `lockID` **string**, `config` **object**, and `token` **string**.
+Lock a lock. No, seriously.
 
-Returns **error**, or **object** containing status and diagnostic info after unlocking a single lock, and a reusable [`token`](#tokens)
-- If your account only has access to a single lock, you can opt not to specify a `lockID`
-- If your account has access multiple locks, **you must specify a lockID**
-  - This is to prevent unlocking the wrong lock, which would be *pretty not good*
+If no `lockId` is passed and there are multiple locks on the account, will throw error.
 
-##### Examples
-```javascript
-// Unlock a specific lock
-const August = require('august-connect')
+Returns a **AugustLockStatus** object after succesfully locking.
 
-August.unlock({ lockID: '7EDFA965E0AE0CE19772AFA435364295' }, console.log)
+##### Example
+
+```js
+let lockStatus = await lock('7EDFA965E0AE0CE19772AFA435364295')
+console.log(lockStatus)
 // {
-//   status: 'kAugLockState_Unlocked',
-//   info: { ... }
-//   retryCount: 1,
-//   totalTime: 1786,
-//   resultsFromOperationCache: false,
-//   token: 'foobar'
+//   lockID: '7EDFA965E0AE0CE19772AFA435364295'
+//   status: 'kAugLockState_Locked',
+//   doorState: 'kAugDoorState_Closed',
+//   state: {
+//     locked: true,
+//     unlocked: false,
+//     closed: true,
+//     open: false,
+//   }
+//   ...
 // }
 ```
 
-```javascript
-// Assuming your have only one August unlock on your account
-const August = require('august-connect')
+#### `unlock([lockId])` → `object`
 
-;(async () => {
-  await August.unlock()
-})
+Unlock a lock. Yup, really.
+
+If no `lockId` is passed and there are multiple locks on the account, will throw error.
+
+Returns a **AugustLockStatus** object after succesfully unlocking.
+
+##### Example
+
+```js
+let lockStatus = await unlock('7EDFA965E0AE0CE19772AFA435364295')
+console.log(lockStatus)
+// {
+//   lockID: '7EDFA965E0AE0CE19772AFA435364295'
+//   status: 'kAugLockState_Locked',
+//   doorState: 'kAugDoorState_Closed',
+//   state: {
+//     locked: true,
+//     unlocked: false,
+//     closed: true,
+//     open: false,
+//   }
+//   ...
+// }
 ```
 
+### Events
+
+#### `subscribe(lockId, callback)` → `function`
+
+Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md) for more info.
+
+Returns an unsubscribe function.
+
+> Note: Events may be recieved at any time, regardless of lock/app usage.
+
+### Advanced
+
+The following methods are designed to be used interally, but are available for advanced use. If you would like to explore more endpoints, check out [this list](/endpoints.md).
+
+#### `get(endpoint)` → `object`
+
+#### `put(endpoint, [data])` → `object`
+
+#### `post(endpoint, [data])` → `object`
+
+`endpoint` can be the whole URL or just the endpoint from the list
+`data` must be an **object**, if passed
+Returns `body` of the HTTP response
 
 ---
-
-## Upgrade guide
-
-### 3.0
-
-- Version 3.0 now requires calls that methods may only be passed objects; specifically, those breaking changes would manifest in the following ways:
-  - `august.authorize`:
-    - Before: `august.authorize('123456')`
-    - After: `august.authorize({ code: '123456' })`
-  - `august.status`:
-    - Before: `august.status('7EDFA965E0AE0CE19772AFA435364295')`
-    - After: `august.status({ lockID: '7EDFA965E0AE0CE19772AFA435364295' })`
-  - `august.lock`:
-    - Before: `august.lock('7EDFA965E0AE0CE19772AFA435364295')`
-    - After: `august.lock({ lockID: '7EDFA965E0AE0CE19772AFA435364295' })`
-  - `august.unlock`:
-    - Before: `august.unlock('7EDFA965E0AE0CE19772AFA435364295')`
-    - After: `august.unlock({ lockID: '7EDFA965E0AE0CE19772AFA435364295' })`
-
----
-
-## Contributing
-
-- Please fork and submit PRs against `master`
-- Make sure unit tests pass
-- Integration tests should also pass, but are **not automated**
-  - Because we wouldn't want real doors getting locked and unlocked in the real world, integration tests are not part of the automated test suite
-  - To run them, ensure you are using a valid API key¹, set up your local `.env` file, and test against your own hardware with a valid installation
-
----
-
 
 ## Acknowledgments
-Big ups to [Nolan Brown](https://medium.com/@nolanbrown/august-lock-rest-apis-the-basics-7ec7f31e7874) and [Joe Lu](https://github.com/snjoetw)'s [py-august](https://github.com/snjoetw/py-august) project for paving the way!
 
+This module has morphed from [Ryan Block](https://github.com/ryanblock)'s [august-connect](https://github.com/ryanblock/august-connect). Many thanks to him for doing most of the legwork. Also big ups to [Nolan Brown](https://medium.com/@nolanbrown/august-lock-rest-apis-the-basics-7ec7f31e7874) and [Joe Lu](https://github.com/snjoetw)'s [py-august](https://github.com/snjoetw/py-august) project for paving the way!
 
 ## Notes
-¹ `august-connect` uses August's unpublished API, and August has been known to occasionally recycle their client API keys. Hard-coding a August API key into `august-connect` would not reliable, so you'll need to acquire a key of your own. I suggest using [Nolan Brown's August API reverse engineering guide](https://medium.com/@nolanbrown/the-process-of-reverse-engineering-the-august-lock-api-9dbd12ab65cb) to get one – or there's always Google!
 
-- This module was tested with a 1st-generation August Smart Lock
-  - If you have future-gen August smart locks, I'd love to know more about how the library performs for you!
+- This module was tested with a 4th-generation August Wi-Fi Smart Lock, but should work for all previous versions. If it does not, please post an issue.
 - This module does not provide an interface to August locks via BLE
-- This module is not intended to provide complete coverage of the August API, only the bare minimum necessary to operate the August Smart Lock
-- Unfortunately, August does not publish their API for consumer usage, so this may break at any time; August name etc. trademark Assa Abloy (who make some truly great locks, by the way!)
-- **I am in no way responsible for any safety issues that arise from the use of this module!**
+- This module is not intended to provide complete coverage of the August API, only the most common uses. See this [list of endpoints](/endpoints.md) if you want to explore more.
+- Unfortunately, August does not publish their API for consumer usage, so this may break at any time; August name etc. trademark Assa Abloy
