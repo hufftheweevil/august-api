@@ -25,14 +25,12 @@ module.exports = async function subscribe(lockId, callback) {
   let pubnub = new PubNub(pnconfig)
 
   pubnub.addListener({
-    message: function ({ message, timetoken }) {
-      // let { message } = m
-      if (!message.info) message.info = { lockID: lockId }
+    message: ({ message, timetoken }) => {
+      this.addState(message)
       callback?.(message, timetoken)
     }
   })
 
-  console.log('subscribing to channel', channel)
   pubnub.subscribe({
     channels: [channel]
   })

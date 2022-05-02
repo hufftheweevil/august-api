@@ -19,15 +19,7 @@ module.exports = async function status(lockId, internal) {
 
   if (!body) return
 
-  // Add some simple info
-  body.state = {
-    locked: body.status === 'kAugLockState_Locked',
-    unlocked: body.status === 'kAugLockState_Unlocked',
-    open: body.doorState === 'kAugDoorState_Open' || body.doorState === 'kAugLockDoorState_Open',
-    closed:
-      body.doorState === 'kAugDoorState_Closed' || body.doorState === 'kAugLockDoorState_Closed'
-  }
-  body.lockID = body.info?.lockID
+  this.addState(body)
 
   return body
 }

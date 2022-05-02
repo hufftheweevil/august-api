@@ -105,6 +105,27 @@ class August {
   async subscribe(lockId, callback) {
     return subscribe.call(this, lockId, callback)
   }
+
+  addState(obj) {
+    // Adds .state and .lockID to obj
+    let { status, doorState, info } = obj
+    obj.state = {}
+    if (status) {
+      obj.state.locked = status === 'kAugLockState_Locked' || status === 'locked'
+      obj.state.unlocked = status === 'kAugLockState_Unlocked' || status === 'unlocked'
+    }
+    if (doorState) {
+      obj.state.open =
+        doorState === 'kAugDoorState_Open' ||
+        doorState === 'kAugLockDoorState_Open' ||
+        doorState === 'open'
+      obj.state.closed =
+        doorState === 'kAugDoorState_Closed' ||
+        doorState === 'kAugLockDoorState_Closed' ||
+        doorState === 'closed'
+    }
+    if (info?.lockID) obj.lockID = info.lockID
+  }
 }
 
 module.exports = August
