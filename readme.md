@@ -276,7 +276,7 @@ console.log(lockStatus)
 
 #### `subscribe(lockId, callback)` → `function`
 
-Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md#AugustLockStatus) for more info.
+Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md#AugustEvent) for more info.
 
 Returns an unsubscribe function.
 
