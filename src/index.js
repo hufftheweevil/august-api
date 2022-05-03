@@ -126,6 +126,32 @@ class August {
     }
     if (info?.lockID) obj.lockID = info.lockID
   }
+
+  /* ----------------------------- Static methods ----------------------------- */
+  static async authorize(config) {
+    return new August(config).authorize()
+  }
+  static async validate(config, code) {
+    return new August(config).validate(code)
+  }
+  static async locks(config) {
+    return new August(config).locks()
+  }
+  static async details(config, lockId) {
+    return new August(config).details(lockId)
+  }
+  static async status(config, lockId) {
+    return new August(config).status(lockId)
+  }
+  static async lock(config, lockId) {
+    return new August(config).lock(lockId)
+  }
+  static async unlock(config, lockId) {
+    return new August(config).unlock(lockId)
+  }
+  static async subscribe(config, lockId, callback) {
+    return new August(config).subscribe(lockId, callback)
+  }
 }
 
 module.exports = August
