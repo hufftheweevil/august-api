@@ -276,11 +276,11 @@ console.log(lockStatus)
 
 #### `subscribe(lockId, callback)` → `function`
 
-Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md#AugustEvent) for more info.
+Subscribe to events from a lock. `callback(AugustEvent, timestamp)` will be called for every event. See [definitions](/definitions.md#AugustEvent) for more info. Pass `null` or `undefined` as `lockId` and receive events for all locks on the account.
 
 Returns an unsubscribe function.
 
-> Note: Events may be recieved at any time, regardless of lock/app usage.
+> Note: Events may be received at any time, regardless of lock/app usage.
 
 ### Advanced
 

@@ -1,7 +1,7 @@
 /**
  * * Get details for a lock
  *
- * @param {string} lockId
+ * @param {string} [lockId]
  * @return {AugustLockDetails}
  */
 module.exports = async function details(lockId, internal) {

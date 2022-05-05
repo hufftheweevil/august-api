@@ -1,7 +1,7 @@
 /**
  * * Get status of a lock
  *
- * @param {string} lockId
+ * @param {string} [lockId]
  * @return {AugustLockStatus}
  */
 module.exports = async function status(lockId, internal) {

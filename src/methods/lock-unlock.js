@@ -2,7 +2,7 @@
  * * Lock or unlock a lock
  *
  * @param {string} action (used internally)
- * @param {string} lockId
+ * @param {string} [lockId]
  * @return {AugustLockStatus}
  */
 module.exports = async function lockUnlock(action, lockId) {

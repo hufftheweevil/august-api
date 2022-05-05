@@ -105,6 +105,9 @@ class August {
   async subscribe(lockId, callback) {
     return subscribe.call(this, lockId, callback)
   }
+  async _subscribe(lockId, callback) {
+    return subscribe.call(this, lockId, callback, true) // true keeps the session alive
+  }
 
   addSimpleProps(obj) {
     // Adds .state and .lockID to obj
