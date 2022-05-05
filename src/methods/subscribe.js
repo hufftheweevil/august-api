@@ -45,6 +45,7 @@ module.exports = async function subscribe(lockId, callback, internal) {
   pubnub.addListener({
     message: ({ message, timetoken }) => {
       this.addSimpleProps(message)
+      if (!message.lockId) message.lockId = lockId
       callback?.(message, timetoken)
     }
   })
