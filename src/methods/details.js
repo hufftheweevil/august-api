@@ -17,5 +17,7 @@ module.exports = async function details(lockId, internal) {
 
   if (!internal) this.end()
 
+  body.lockId = body.LockID
+
   return body
 }

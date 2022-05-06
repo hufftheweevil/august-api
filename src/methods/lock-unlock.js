@@ -23,5 +23,7 @@ module.exports = async function lockUnlock(action, lockId) {
 
   this.end()
 
+  this.addSimpleProps(body)
+
   return body
 }
