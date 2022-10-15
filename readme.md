@@ -293,6 +293,7 @@ The following methods are designed to be used interally, but are available for a
 #### `post(endpoint, [data])` → `object`
 
 `endpoint` can be the whole URL or just the endpoint from the list
+
 `data` must be an **object**, if passed
 Returns `body` of the HTTP response
 
