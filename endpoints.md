@@ -4,7 +4,10 @@ This is an updated version of [Nolan Brown's list](https://nolanbrown.medium.com
 
 **Note:** Not all endpoints are implemented in this package. Some may be added in the future. This list is for information and research.
 
-All endpoints found at https://api-production.august.com
+All endpoints found at:
+- Brand.AUGUST: "https://api-production.august.com"
+- Brand.YALE_ACCESS: "https://api-production.august.com"
+- Brand.YALE_HOME: "https://api.aaecosystem.com"
 
 Last updated 5/1/22
 

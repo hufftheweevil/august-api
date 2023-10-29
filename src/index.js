@@ -12,6 +12,7 @@ const details = require('./methods/details')
 const subscribe = require('./methods/subscribe')
 
 const API_URL = 'https://api-production.august.com'
+const API_UR_NON_US = 'https://api.aaecosystem.com'
 
 class August {
   constructor(config) {
@@ -19,21 +20,39 @@ class August {
   }
 
   async fetch({ method, ...params }) {
-    // Ensure proper url
-    if (!params.url.startsWith(API_URL)) {
-      if (!params.url.startsWith('/')) params.url = '/' + params.url
-      params.url = API_URL + params.url
-    }
-    try {
-      // Keep this `await` - it allows us to catch errors from tiny
-      return await tiny[method](params)
-    } catch (err) {
-      // Convert giagantic error to a more manageable one
-      if (err.statusCode)
-        err = `FetchError: Status ${err.statusCode} (${err.body.code}): ${err.body.message}`
+    if (this.config.countryCode = 'US') {
+      // Ensure proper url
+      if (!params.url.startsWith(API_URL)) {
+        if (!params.url.startsWith('/')) params.url = '/' + params.url
+        params.url = API_URL + params.url
+      }
+      try {
+        // Keep this `await` - it allows us to catch errors from tiny
+        return await tiny[method](params)
+      } catch (err) {
+        // Convert giagantic error to a more manageable one
+        if (err.statusCode)
+          err = `FetchError: Status ${err.statusCode} (${err.body.code}): ${err.body.message}`
 
-      console.error(err)
-      return {}
+        console.error(err)
+        return {}
+      }
+    } else {
+      if (!params.url.startsWith(API_URL_NON_US)) {
+        if (!params.url.startsWith('/')) params.url = '/' + params.url
+        params.url = API_URL_NON_US + params.url
+      }
+      try {
+        // Keep this `await` - it allows us to catch errors from tiny
+        return await tiny[method](params)
+      } catch (err) {
+        // Convert giagantic error to a more manageable one
+        if (err.statusCode)
+          err = `FetchError: Status ${err.statusCode} (${err.body.code}): ${err.body.message}`
+
+        console.error(err)
+        return {}
+      }
     }
   }
 
