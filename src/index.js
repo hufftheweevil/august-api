@@ -11,7 +11,8 @@ const status = require('./methods/status')
 const details = require('./methods/details')
 const subscribe = require('./methods/subscribe')
 
-const API_URL = 'https://api-production.august.com'
+const API_URL_US = 'https://api-production.august.com'
+const API_URL_NON_US = 'https://api.aaecosystem.com'
 
 class August {
   constructor(config) {
@@ -19,6 +20,8 @@ class August {
   }
 
   async fetch({ method, ...params }) {
+    const API_URL = this.config.countryCode == 'US' ? API_URL_US : API_URL_NON_US
+
     // Ensure proper url
     if (!params.url.startsWith(API_URL)) {
       if (!params.url.startsWith('/')) params.url = '/' + params.url

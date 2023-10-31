@@ -4,9 +4,13 @@ This is an updated version of [Nolan Brown's list](https://nolanbrown.medium.com
 
 **Note:** Not all endpoints are implemented in this package. Some may be added in the future. This list is for information and research.
 
-All endpoints found at https://api-production.august.com
+Endpoint URL depends on brand and location:
 
-Last updated 5/1/22
+- August (US): https://api-production.august.com
+- Yale Access (US): https://api-production.august.com
+- Yale Home (Non-US): https://api.aaecosystem.com
+
+List last updated 5/1/22
 
 ## Session and Validate
 
