@@ -69,8 +69,11 @@ When creating a new `August` object, the configuration can be passed in as an ob
 | password      | AUGUST_PASSWORD    |
 | apiKey¹       | AUGUST_API_KEY¹    |
 | pnSubKey¹     | AUGUST_PN_SUB_KEY¹ |
+| countryCode²  | COUNTRY_CODE²      |
 
 > ¹ `apiKey` and `pnSubKey` are optional. This module uses August's unpublished API, and August has been known to occasionally recycle their client API keys. **Keys have been hard-coded into this module, but they may break at any time.** If you find a different key to use, pass it in here.
+
+> ² `countryCode` is also optional. Any value other than `US` will use a different set of default API URLs. These can still be overriden by `apiKey` and `pbSubKey`.
 
 When using environment variables, you can simply call `new August()`. You can also choose to have some environment variables and some in the config object. Any property sent via the config object will override the respective environment variable.
 
