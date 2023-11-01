@@ -21,7 +21,7 @@ module.exports = function setup(config = {}) {
     COUNTRY_CODE
   } = process.env
 
-  let countryCode = config.countryCode ?? COUNTRY_CODE
+  let countryCode = config.countryCode ?? COUNTRY_CODE ?? 'US'
   let errors = []
 
   let DEFAULT_API_KEY = countryCode == 'US' ? DEFAULT_API_KEY_US : DEFAULT_API_KEY_NON_US
