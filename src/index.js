@@ -29,7 +29,10 @@ class August {
     }
     try {
       // Keep this `await` - it allows us to catch errors from tiny
-      return await tiny[method](params)
+      // console.log('REQUEST', method, params)
+      let res = await tiny[method](params)
+      // console.log('RESPONSE', res)
+      return res
     } catch (err) {
       // Convert giagantic error to a more manageable one
       if (err.statusCode)
